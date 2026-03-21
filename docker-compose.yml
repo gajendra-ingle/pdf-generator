@@ -6,7 +6,7 @@ services:
     image: gotenberg/gotenberg:8
     container_name: gotenberg
     ports:
-      - "3000:3000"
+      - "${GOTENBERG_PORT}"
     command:
       - "gotenberg"
       - "--chromium-disable-routes=false"
@@ -18,10 +18,10 @@ services:
     image: localstack/localstack:3
     container_name: localstack
     ports:
-      - "4566:4566"
+      - "${LOCALSTACK_PORT}"
     environment:
       - SERVICES=s3
-      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_DEFAULT_REGION=${AWS_REGION}
       - EAGER_SERVICE_LOADING=1
     volumes:
       - "./init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh"
@@ -31,15 +31,15 @@ services:
     build: .
     container_name: pdf-generator
     ports:
-      - "8080:8080"
+      - "${APP_PORT}:8081"
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - GOTENBERG_BASE_URL=http://gotenberg:3000
-      - AWS_ACCESS_KEY=test
-      - AWS_SECRET_KEY=test
-      - AWS_REGION=us-east-1
-      - S3_BUCKET_NAME=pdf-dev-bucket
-      - AWS_S3_ENDPOINT=http://localstack:4566
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
+      - GOTENBERG_BASE_URL=${GOTENBERG_BASE_URL}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT}
     depends_on:
       - gotenberg
       - localstack
